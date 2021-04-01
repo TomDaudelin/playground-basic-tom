@@ -13,10 +13,10 @@ public class LastNameFileReader {
 	//Sets up the buffered reader (links last name file in order to read from it)
 	public LastNameFileReader(String resource_path) throws IOException {
 		String path = System.getProperty("user.dir");
-		path.concat(resource_path);
+		path = path.concat(resource_path);
 		
 		this.file_reader = new BufferedReader(new FileReader(path));
-		this.file_reader.mark(0);
+		this.file_reader.mark(8192);
 	}
 	
 	//Read a last name from the last name text file

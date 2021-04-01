@@ -30,6 +30,7 @@ public class SampleClient {
                         .where(Patient.FAMILY.matches().value(last_name))
                         .returnBundle(Bundle.class)
                         .execute();
+                last_name = last_name_reader.readLastName();
              }
         	last_name_reader.reset();
         }
