@@ -14,6 +14,7 @@ public class IClientInterceptor {
 	
 	@Hook(Pointcut.CLIENT_REQUEST)
 	public void startStopWatch() {
+		this.stop_watch.restart();
 		this.stop_watch.startTask("Search for patient");
 	}
 	

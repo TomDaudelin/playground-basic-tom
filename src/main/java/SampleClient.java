@@ -12,17 +12,20 @@ public class SampleClient {
 	static final String LAST_NAME_FILE_PATH = "\\src\\main\\resources\\last_names.txt";
 	
     public static void main(String[] theArgs) throws IOException {
+    	
+    	IClientInterceptor timer_interceptor = new IClientInterceptor();
 
         // Create a FHIR client
         FhirContext fhirContext = FhirContext.forR4();
         IGenericClient client = fhirContext.newRestfulGenericClient("http://hapi.fhir.org/baseR4");
         client.registerInterceptor(new LoggingInterceptor(false));
+        client.registerInterceptor(timer_interceptor);
         
         LastNameFileReader last_name_reader = new LastNameFileReader(LAST_NAME_FILE_PATH);
         
         for (int i = 0; i < 3; i++) {
         	int number_of_patients = 0;
-        	int total_search_time = 0;
+        	long total_search_time = 0;
         	String last_name = last_name_reader.readLastName();
         	while (last_name != null) {
         		// Search for Patient resources
@@ -33,11 +36,12 @@ public class SampleClient {
                         .returnBundle(Bundle.class)
                         .execute();
                 
-                total_search_time++;
+                total_search_time += timer_interceptor.requestStopWatch();
+                number_of_patients++;
                 last_name = last_name_reader.readLastName();
             }
-        	int average_response_time = total_search_time/number_of_patients;
-        	System.out.print("Average Response Time: " + average_response_time);
+        	long average_response_time = total_search_time/number_of_patients;
+        	System.out.print("\n\nAverage Response Time: " + average_response_time + "ms\n\n");
         	last_name_reader.reset();
         }
     	last_name_reader.close();
