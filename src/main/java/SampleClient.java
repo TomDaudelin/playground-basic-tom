@@ -1,4 +1,5 @@
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.api.CacheControlDirective;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor;
 
@@ -14,7 +15,9 @@ public class SampleClient {
     public static void main(String[] theArgs) throws IOException {
     	
     	IClientInterceptor timer_interceptor = new IClientInterceptor();
-
+    	CacheControlDirective cache_control = new CacheControlDirective();
+    	cache_control.setNoCache(false);
+    	
         // Create a FHIR client
         FhirContext fhirContext = FhirContext.forR4();
         IGenericClient client = fhirContext.newRestfulGenericClient("http://hapi.fhir.org/baseR4");
@@ -24,6 +27,9 @@ public class SampleClient {
         LastNameFileReader last_name_reader = new LastNameFileReader(LAST_NAME_FILE_PATH);
         
         for (int i = 0; i < 3; i++) {
+        	if (i == 2) {
+        		cache_control.setNoCache(true);
+        	}
         	int number_of_patients = 0;
         	long total_search_time = 0;
         	String last_name = last_name_reader.readLastName();
@@ -34,6 +40,7 @@ public class SampleClient {
                         .forResource("Patient")
                         .where(Patient.FAMILY.matches().value(last_name))
                         .returnBundle(Bundle.class)
+                        .cacheControl(cache_control)
                         .execute();
                 
                 total_search_time += timer_interceptor.requestStopWatch();
